@@ -1,6 +1,5 @@
 import React from "react";
 import { BiEdit, BiTrashAlt } from "react-icons/bi";
-// import data from "../database/data.json";
 import { getUsers } from "../lib/helper";
 import { useQuery } from "react-query";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,41 +10,45 @@ import {
 } from "../redux/reducer";
 
 const Table = () => {
-  const { isLoading, isError, data, error } = useQuery("users", getUsers);
+  const { isLoading, isError, data, error } = useQuery(
+    "users",
+    getUsers
+  );
 
-  if (isLoading) return <div>Employee is Loading...</div>;
-  if (isError) return <div>Got Error {error}</div>;
+  if (isLoading)
+    return <div className="text-center py-5">Loading...</div>;
+
+  if (isError)
+    return <div>Error: {error.message}</div>;
 
   return (
-    <table className="min-w-full table-auto rounded-lg m-3">
-      <thead>
-        <tr className="bg-gray-800">
-          <th className="px-16 py-3">
-            <span className="text-gray-200">Name</span>
-          </th>
-          <th className="px-16 py-2">
-            <span className="text-gray-200">Email</span>
-          </th>
-          <th className="px-16 py-2">
-            <span className="text-gray-200">Salary</span>
-          </th>
-          <th className="px-16 py-2">
-            <span className="text-gray-200">Birthday</span>
-          </th>
-          <th className="px-16 py-2">
-            <span className="text-gray-200">Status</span>
-          </th>
-          <th className="px-16 py-2">
-            <span className="text-gray-200">Actions</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody className="bg-gray-200">
-        {data.map((obj, i) => (
-          <Tr {...obj} key={i} />
-        ))}
-      </tbody>
-    </table>
+    <div className="w-full overflow-x-auto rounded-2xl shadow-xl">
+
+      <table className="w-full min-w-[900px] bg-white rounded-2xl overflow-hidden">
+
+        {/* HEADER */}
+        <thead>
+          <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+
+            <th className="px-6 py-4 text-left">Name</th>
+            <th className="px-6 py-4 text-left">Email</th>
+            <th className="px-6 py-4 text-left">Salary</th>
+            <th className="px-6 py-4 text-left">Birthday</th>
+            <th className="px-6 py-4 text-left">Status</th>
+            <th className="px-6 py-4 text-center">Actions</th>
+
+          </tr>
+        </thead>
+
+        {/* BODY */}
+        <tbody>
+          {data?.map((obj, i) => (
+            <Tr {...obj} key={i} />
+          ))}
+        </tbody>
+
+      </table>
+    </div>
   );
 };
 
@@ -55,6 +58,7 @@ function Tr({ _id, name, avatar, email, salary, date, status }) {
 
   const onUpdate = () => {
     dispatch(toggleChangeAction(_id));
+
     if (visible) {
       dispatch(updateAction(_id));
     }
@@ -67,46 +71,81 @@ function Tr({ _id, name, avatar, email, salary, date, status }) {
   };
 
   return (
-    <tr className="bg-gray-200 text-center rounded-xl border-red-300 border-y-2	">
-      <td className="px-16 py-2 flex flex-row items-center">
-        <img
-          src={avatar || "#"}
-          alt=""
-          className="h-8 w-8 rounded-full object-cover"
-        />
-        <span className="text-center ml-2 font-semibold">
-          {name || "Unknown"}
+    <tr className="border-b hover:bg-indigo-50 duration-200">
+
+      {/* NAME */}
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+
+          {avatar ? (
+            <img
+              src={avatar}
+              alt=""
+              className="h-11 w-11 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-11 w-11 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold uppercase">
+              {name?.charAt(0)}
+            </div>
+          )}
+
+          <span className="font-semibold text-gray-700">
+            {name || "Unknown"}
+          </span>
+
+        </div>
+      </td>
+
+      {/* EMAIL */}
+      <td className="px-6 py-4 text-gray-600">
+        {email}
+      </td>
+
+      {/* SALARY */}
+      <td className="px-6 py-4 text-gray-600">
+        Rp {salary}
+      </td>
+
+      {/* DATE */}
+      <td className="px-6 py-4 text-gray-600">
+        {date}
+      </td>
+
+      {/* STATUS */}
+      <td className="px-6 py-4">
+        <span
+          className={`px-4 py-1 rounded-full text-sm text-white ${
+            status === "Active"
+              ? "bg-green-500"
+              : "bg-rose-500"
+          }`}
+        >
+          {status}
         </span>
       </td>
-      <td className="px-16 py-2">
-        <span>{email || "Unknown"}</span>
-      </td>
-      <td className="px-16 py-2">
-        <span>{salary || "Unknown"}</span>
-      </td>
-      <td className="px-16 py-2">
-        <span>{date || "Unknown"}</span>
-      </td>
-      <td className="px-16 py-2">
-        <button className="cursor">
-          <span
-            className={`${
-              status == "Active" ? "bg-green-500" : "bg-rose-500"
-            } text-white px-5 py-1 rounded-full`}
+
+      {/* ACTION */}
+      <td className="px-6 py-4">
+        <div className="flex justify-center gap-4">
+
+          <button
+            onClick={onUpdate}
+            className="bg-yellow-400 p-2 rounded-lg hover:scale-110 duration-200"
           >
-            {status || "Unknown"}
-          </span>
-        </button>
-      </td>
-      <td className="px-16 py-2 flex justify-around gap-5">
-        <button className="cursor" onClick={onUpdate}>
-          <BiEdit size={25} color={"rgb(254, 211, 48)"}></BiEdit>
-        </button>
-        <button className="cursor" onClick={onDelete}>
-          <BiTrashAlt size={25} color={"rgb(244,63,94)"}></BiTrashAlt>
-        </button>
+            <BiEdit size={20} color="white" />
+          </button>
+
+          <button
+            onClick={onDelete}
+            className="bg-rose-500 p-2 rounded-lg hover:scale-110 duration-200"
+          >
+            <BiTrashAlt size={20} color="white" />
+          </button>
+
+        </div>
       </td>
     </tr>
   );
 }
+
 export default Table;
